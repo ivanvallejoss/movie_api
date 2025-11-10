@@ -1,6 +1,5 @@
-// app.js - Versión Minimalista con Protección
 
-const API_BASE_URL = 'http://localhost:3000/api/v1';
+const API_BASE_URL = API_CONFIG.BASE_URL;
 const API_MOVIES_URL = `${API_BASE_URL}/movies`;
 
 // Estado

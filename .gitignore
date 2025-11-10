@@ -30,4 +30,15 @@
 
 # Ignore key files for decrypting credentials and more.
 /config/*.key
+/config/credentials/*.key
+
+# Ignore systems files
+.DS_STORE
+.DS_STORE?
+._*
+.Spotlight-V100
+.Trashes
+
+# node modules
+node_modules/
 
