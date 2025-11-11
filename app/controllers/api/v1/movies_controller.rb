@@ -7,11 +7,27 @@ class Api::V1::MoviesController < ApplicationController
 
   # GET /api/v1/movies
   def index
-    @movies = Movie.all.order(created_at: :desc)
+    page = params[:page]&.to_i || 1
+    per_page = params[:per_page]&.to_i || 20
+    per_page = [per_page, 100].min
+
+    @movies = Movie.all
+                .order(created_at: :desc)
+                .limit(per_page)
+                .offset((page - 1) * per_page)
+
+    total_count = Movie.count
+
 
     render json: {
       status: 'success',
       data: @movies,
+      meta: {
+        current_page: page,
+        per_page: per_page,
+        total_count: total_count,
+        total_pages: (total_count / per_page.to_f).ceil
+      },
       message: 'Movies retrieved successfully'
     }, status: :ok
   end
@@ -84,6 +100,7 @@ class Api::V1::MoviesController < ApplicationController
         data: nil,
         message: "Movie with ID #{params[:id]} not found"
       }, status: :not_found
+      return
     end
   end
 
