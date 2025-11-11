@@ -168,7 +168,7 @@ async function editMovie(id){
 async function updateMovie(id, movieData){
     try {
         const response = await fetch(`${API_MOVIES_URL}/${id}`, {
-            mehotd: 'PATCH',
+            method: 'PATCH',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({movie: movieData})
         });

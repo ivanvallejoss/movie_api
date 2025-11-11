@@ -12,7 +12,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       origins(*allowed_origins)
     else
       # Produccion: solo el dominio frontend
-      origins ENV.fetch['FRONTEND_URL']
+      origins ENV.fetch('FRONTEND_URL') # <- Falta agregar URL
     end
 
     resource "/api/*",

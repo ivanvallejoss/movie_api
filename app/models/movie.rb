@@ -4,14 +4,14 @@ class Movie < ApplicationRecord
     validates :director, presence: true, length: { minimum: 1, maximum: 255 }
     validates :year, presence: true, numericality: {
         only_integer: true,
-        greatedr_than_or_equal_to: 1930, # Para no ir tan atras en el tiempo
+        greater_than_or_equal_to: 1930, # Para no ir tan atras en el tiempo
         less_than_or_equal_to: -> { Time.current.year + 5 } # Proximos estrenos 
     }
     validates :genre, presence: true
 
     # Validaciones para el rating
     validates :rating, numericality: {
-        greatedr_than_or_equal_to: 0.0,
+        greater_than_or_equal_to: 0.0,
         less_than_or_equal_to: 10.0,
         allow_nil: true
     }
