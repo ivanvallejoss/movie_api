@@ -32,7 +32,18 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="year">Año *</label>
-                        <input type="number" id="year" name="year" min="1888" max="2030" required>
+                        <input
+                         type="number"
+                          id="year"
+                           name="year"
+                            min="1888"
+                            step="1"
+                             max="2030"
+                             placeholder="ej: 2024"
+                              required>
+                        <span class="error-message" id="year-error" style="display: none;">
+                            El year debe estar entre 1930 y <span id="max-year"></span>
+                        </span>
                     </div>
                     <div class="form-group">
                         <label for="genre">Género *</label>

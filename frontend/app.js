@@ -15,6 +15,11 @@ const formTitle = document.getElementById('form-title');
 const submitText = document.getElementById('submit-text');
 const cancelBtn = document.getElementById('cancel-btn');
 
+// Elementos para validacion de year
+const yearInput = document.getElementById('year');
+const yearError = document.getElementById('year-error');
+const maxYearSpan = document.getElementById('max-year');
+
 
 // ============ INICIALIZACION ======================
 
@@ -26,6 +31,62 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners(){
     movieForm.addEventListener('submit', handleFormSubmit);
     cancelBtn.addEventListener('click', resetForm)
+}
+
+
+
+// =================== Validacion de Year ======================
+
+function setupYearValidation(){
+    // Calculamos year maximo
+    const currentYear = new Date().getFullYear();
+    const maxYear = currentYear + 5;
+
+    // Actualizar el atributo max del input
+    yearInput.setAttribute('max', maxYear);
+
+    // Actualizar el mensaje de error
+    maxYearSpan.textContent = maxYear;
+
+    // Validacion en tiempo real
+    yearInput.addEventListener('input', validateYear);
+    yearInput.addEventListener('blur', validateYear);
+}
+
+function validateYear(){
+    const year = parseInt(yearInput.value);
+    const currentYear = new Date().getFullYear();
+    const minYear = 1888;
+    const maxYear = currentYear + 5;
+
+    // Limpiar estado de error primero
+    yearInput.classList.remove('input-error');
+    yearError.style.display = 'none';
+
+    // Si el campo esta vacio, no validar (required lo manejara)
+    if (yearInput.value === ''){
+        return true;
+    }
+
+    // Verificar que sea un numero entero
+    if (!Number.isInteger(year)){
+        showYearError('El year debe ser un numero entero');
+        return false;
+    }
+
+    // Verificar range
+    if (year < minYear || year > maxYear){
+        showYearError(`El year debe estar entre ${minYear} y ${maxYear}`);
+        return false
+    }
+    // si todo esta validado
+    return true
+}
+
+function showYearError(message){
+    yearInput.classList.add('input-error');
+    yearError.textContent = message;
+    yearError.style.display = 'block';
 }
 
 
