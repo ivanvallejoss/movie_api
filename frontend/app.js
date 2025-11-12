@@ -225,7 +225,7 @@ function handleFormSubmit(e) {
     const movieData = {
         title: formData.get('title').trim(),
         director: formData.get('director').trim(),
-        year: formData.get('year'),
+        year: parseInt(formData.get('year'), 10),
         genre: formData.get('genre').trim(),
         rating: formData.get('rating') ? parseFloat(formData.get('rating')) : null,
         synopsis: formData.get('synopsis').trim() || null,

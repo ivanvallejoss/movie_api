@@ -172,9 +172,12 @@ movies = [
 ]
 
 movies.each do |movie_data|
-    movie = Movie.create!(movie_data)
+  Movie.find_or_create_by!(title: movie_data[:title]) do |movie|
+    movie.assign_attributes(movie_data)
     puts "Creada: #{movie.title} (#{movie.year})"
+  end
 end
+
 
 puts "\n Seeds Completados!"
 puts "\n Total peliculas: #{Movie.count}"
