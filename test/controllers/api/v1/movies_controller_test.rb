@@ -334,4 +334,238 @@ class Api::V1::MoviesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 999, json_response["pagination"]["current_page"]
     # assert_nil json_response["pagination"]["next_page"]
   end
+
+    # ============================================================================
+  # TEST: Filtro por género
+  # ============================================================================
+  test "should filter movies by genre" do
+    # ARRANGE: Tenemos películas de diferentes géneros en fixtures
+    # inception, matrix = Sci-Fi
+    # godfather = Crime
+    
+    # ACT: Filtrar solo Sci-Fi
+    get api_v1_movies_url, params: { genre: "Sci-Fi" }
+    
+    # ASSERT
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    movies = json_response["data"]
+    
+    # Verificar que solo retorna películas de Sci-Fi
+    assert movies.length >= 2, "Should have at least 2 Sci-Fi movies"
+    
+    movies.each do |movie|
+      assert_equal "Sci-Fi", movie["genre"], 
+                   "Movie #{movie['title']} should be Sci-Fi"
+    end
+    
+    # Verificar metadata de filtros
+    assert_equal "Sci-Fi", json_response["filters"]["genre"]
+  end
+  
+  # ============================================================================
+  # TEST: Filtro por género (case-insensitive)
+  # ============================================================================
+  test "should filter movies by genre case insensitive" do
+    # ACT: Buscar "sci-fi" en minúsculas
+    get api_v1_movies_url, params: { genre: "sci-fi" }
+    
+    # ASSERT: Debe encontrar "Sci-Fi"
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    movies = json_response["data"]
+    
+    assert movies.length >= 2, "Should find Sci-Fi movies regardless of case"
+  end
+
+  # ============================================================================
+  # TEST: Filtro por año
+  # ============================================================================
+  test "should filter movies by year" do
+    # ARRANGE: Tenemos películas de diferentes años
+    # inception = 2010, matrix = 1999, godfather = 1972
+    
+    # ACT: Filtrar solo año 2010
+    get api_v1_movies_url, params: { year: 2010 }
+    
+    # ASSERT
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    movies = json_response["data"]
+    
+    # Verificar que todas las películas son del 2010
+    movies.each do |movie|
+      assert_equal 2010, movie["year"]&.to_i,
+                   "Movie #{movie['title']} should be from 2010"
+    end
+    
+    # Verificar metadata
+    assert_equal 2010, json_response["filters"]["year"].to_i
+  end
+
+  # ============================================================================
+  # TEST: Búsqueda por título
+  # ============================================================================
+  test "should search movies by title" do
+    # ACT: Buscar "Inception"
+    get api_v1_movies_url, params: { q: "Inception" }
+    
+    # ASSERT
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    movies = json_response["data"]
+    
+    # Debe encontrar al menos Inception
+    assert movies.length >= 1, "Should find at least one movie"
+    
+    # Verificar que Inception está en los resultados
+    inception = movies.find { |m| m["title"] == "Inception" }
+    assert_not_nil inception, "Should find Inception in search results"
+  end
+
+  # ============================================================================
+  # TEST: Búsqueda por director
+  # ============================================================================
+  test "should search movies by director" do
+    # ACT: Buscar "Nolan" (director de Inception)
+    get api_v1_movies_url, params: { q: "Nolan" }
+    
+    # ASSERT
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    movies = json_response["data"]
+    
+    # Debe encontrar Inception (dirigida por Christopher Nolan)
+    assert movies.length >= 1, "Should find movies by Nolan"
+    
+    # Verificar que todas tienen "Nolan" en el director
+    movies.each do |movie|
+      assert_includes movie["director"].downcase, "nolan",
+                      "Movie director should contain 'nolan'"
+    end
+  end
+
+  # ============================================================================
+  # TEST: Búsqueda case-insensitive
+  # ============================================================================
+  test "should search movies case insensitive" do
+    # ACT: Buscar en minúsculas
+    get api_v1_movies_url, params: { q: "matrix" }
+    
+    # ASSERT: Debe encontrar "The Matrix"
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    movies = json_response["data"]
+    
+    assert movies.length >= 1, "Should find Matrix regardless of case"
+    
+    matrix = movies.find { |m| m["title"].downcase.include?("matrix") }
+    assert_not_nil matrix, "Should find The Matrix"
+  end
+
+  # ============================================================================
+  # TEST: Combinar múltiples filtros
+  # ============================================================================
+  test "should combine multiple filters" do
+    # ARRANGE: Crear películas específicas para este test
+    Movie.create!(
+      title: "Interstellar",
+      director: "Christopher Nolan",
+      year: 2014,
+      genre: "Sci-Fi"
+    )
+    
+    Movie.create!(
+      title: "The Dark Knight",
+      director: "Christopher Nolan",
+      year: 2008,
+      genre: "Action"
+    )
+    
+    # ACT: Buscar películas de Sci-Fi de Nolan
+    get api_v1_movies_url, params: { genre: "Sci-Fi", q: "Nolan" }
+    
+    # ASSERT
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    movies = json_response["data"]
+    
+    # Debe encontrar Interstellar e Inception (ambas Sci-Fi de Nolan)
+    # pero NO The Dark Knight (es Action)
+    movies.each do |movie|
+      assert_equal "Sci-Fi", movie["genre"]
+      assert_includes movie["director"].downcase, "nolan"
+    end
+  end
+
+  # ============================================================================
+  # TEST: Filtros sin resultados
+  # ============================================================================
+  test "should return empty array when no movies match filters" do
+    # ACT: Buscar algo que no existe
+    get api_v1_movies_url, params: { genre: "Western", year: 1950 }
+    
+    # ASSERT: No debe fallar, solo retornar array vacío
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    
+    assert_equal 0, json_response["data"].length
+    assert_equal 0, json_response["pagination"]["total_count"]
+  end
+
+  # ============================================================================
+  # TEST: Filtros con paginación
+  # ============================================================================
+  test "should work filters with pagination" do
+    # ARRANGE: Crear 25 películas de Sci-Fi
+    25.times do |i|
+      Movie.create!(
+        title: "Sci-Fi Movie #{i}",
+        director: "Director #{i}",
+        year: 2020,
+        genre: "Sci-Fi"
+      )
+    end
+    
+    # ACT: Primera página de películas Sci-Fi (per_page=20)
+    get api_v1_movies_url, params: { genre: "Sci-Fi", page: 1, per_page: 20 }
+    
+    # ASSERT
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    
+    # Debe haber 20 películas en página 1
+    assert_equal 20, json_response["data"].length
+    
+    # Total debe ser 25 (las que creamos) + 2 (inception, matrix) = 27
+    assert json_response["pagination"]["total_count"] >= 27
+    
+    # Debe haber página 2
+    assert_equal 2, json_response["pagination"]["next_page"]
+  end
+
+  # ============================================================================
+  # TEST: Año inválido es ignorado
+  # ============================================================================
+  test "should ignore invalid year filter" do
+    # ACT: Año inválido (demasiado antiguo)
+    get api_v1_movies_url, params: { year: 1800 }
+    
+    # ASSERT: Debe retornar todas las películas (ignora el filtro)
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    
+    # Debe retornar todas las películas de fixtures (al menos 4)
+    assert json_response["data"].length >= 4
+  end
 end
