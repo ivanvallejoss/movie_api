@@ -16,22 +16,19 @@ end
 
 
 if Rails.env.development?
-    puts "Estas a punto de eliminar todos los datos y recrearlos."
-    puts "Ambiente: #{Rails.env}"
-    puts " Continuar? (y/N)"
+  puts "Quieres resetar la base de datos antes de seedear? (y/N)."
+  confirmation = STDIN.gets.chomp.downcase
 
-    confirmation = STDIN.gets.chomp.downcase
-    unless confirmation == 'y' || confirmation == 'yes'
-        puts 'Seeds Cancelados'
-        exit
-    end
+  if confirmation == 'y' || confirmation == 'yes'
+    puts "\n Limpiando base de datos..."
+    Movie.destroy_all
+    puts "Base de datos limpia\n"
+  else
+    puts "\n Modo idempotente: solo creara peliculas si estas no existen"
+  end
 end
 
-
-puts "Limpiando base de datos..."
-Movie.destroy_all
-
-puts "Creando peliculas..."
+puts "Seeding peliculas..."
 
 movies = [
     {
@@ -171,12 +168,56 @@ movies = [
   }
 ]
 
+# movies.each do |movie_data|
+#   Movie.find_or_create_by!(title: movie_data[:title]) do |movie|
+#     movie.assign_attributes(movie_data)
+#     puts "Creada: #{movie.title} (#{movie.year})"
+#   end
+# end
+
+# ==============================
+# CREAR O ACTUALIZAR PELICULAS
+# ==============================
+created_count = 0
+updated_count = 0
+skipped_count = 0
+
 movies.each do |movie_data|
-  Movie.find_or_create_by!(title: movie_data[:title]) do |movie|
-    movie.assign_attributes(movie_data)
-    puts "Creada: #{movie.title} (#{movie.year})"
+  begin
+    # Buscar por titulo (unico identificador de negocio)
+    movie = Movie.find_or_initialize_by(title: movie_data[:title])
+
+    if movie.new_record?
+      # nUeva pelicula
+      movie.assign_attributes(movie_data)
+      movie.save!
+      created_count += 1
+      puts "Creada: #{movie.title} (#{movie.year})"
+    else
+      # Pelicula ya existe - verificar si necesita actualizacion
+      needs_update = false
+      movie_data.each do |key, value|
+        if movie.send(key) != value
+          needs_update = true
+          break
+        end
+      end
+
+      if needs_update
+        movie.update(movie_data)
+        updated_count += 1
+        puts "Actualizada: #{movie.title} (#{movie.year})"
+      else
+        skipped_count += 1
+        puts "Ya existe (sin cambio): #{movie.title} (#{movie.year})"
+      end
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    puts "Error con #{movie_data[:title]}: #{e.message}"
   end
 end
+
+
 
 
 puts "\n Seeds Completados!"
