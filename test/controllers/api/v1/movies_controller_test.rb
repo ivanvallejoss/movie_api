@@ -195,4 +195,143 @@ class Api::V1::MoviesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
   end
+
+ 
+  # ============================================================================
+  # TEST: Paginación por defecto (página 1, 20 items)
+  # ============================================================================
+  test "should paginate movies with default values" do
+    # ARRANGE: Crear 25 películas para tener múltiples páginas
+    25.times do |i|
+      Movie.create!(
+        title: "Test Movie #{i}",
+        director: "Director #{i}",
+        year: 2000 + i,
+        genre: "Drama"
+      )
+    end
+    
+    # ACT: Hacer petición sin parámetros
+    get api_v1_movies_url
+    
+    # ASSERT: Verificar paginación
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    
+    # Verificar estructura de paginación
+    # assert_not_nil json_response["pagination"]
+    
+    pagination = json_response["pagination"]
+    assert_equal 1, pagination["current_page"]
+    assert_equal 20, pagination["per_page"]
+    assert_equal 2, pagination["total_pages"]  # 25 películas + 4 fixtures = 29 total → 2 páginas
+    assert_equal 2, pagination["next_page"]
+    assert_nil pagination["prev_page"]
+    
+    # Verificar que retorna 20 películas (página 1)
+    assert_equal 20, json_response["data"].length
+  end
+
+  # ============================================================================
+  # TEST: Paginación - página 2
+  # ============================================================================
+  test "should get second page of movies" do
+    # ARRANGE: Crear 25 películas
+    25.times do |i|
+      Movie.create!(
+        title: "Test Movie #{i}",
+        director: "Director #{i}",
+        year: 2020,
+        genre: "Drama"
+      )
+    end
+    
+    # ACT: Solicitar página 2
+    get api_v1_movies_url, params: { page: 2 }
+    
+    # ASSERT
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    pagination = json_response["pagination"]
+    
+    assert_equal 2, pagination["current_page"]
+    assert_equal 1, pagination["prev_page"]
+    assert_nil pagination["next_page"]  # No hay página 3
+    
+    # En página 2 debe haber 9 películas (29 total - 20 en página 1 = 9)
+    assert_equal 9, json_response["data"].length
+  end
+
+  # ============================================================================
+  # TEST: Paginación - cambiar per_page
+  # ============================================================================
+  test "should respect custom per_page parameter" do
+    # ARRANGE: Crear 15 películas
+    15.times do |i|
+      Movie.create!(
+        title: "Movie #{i}",
+        director: "Director",
+        year: 2020,
+        genre: "Drama"
+      )
+    end
+    
+    # ACT: Solicitar 5 películas por página
+    get api_v1_movies_url, params: { per_page: 5 }
+    
+    # ASSERT
+    json_response = JSON.parse(response.body)
+    pagination = json_response["pagination"]
+    
+    assert_equal 5, pagination["per_page"]
+    assert_equal 5, json_response["data"].length
+    assert_equal 4, pagination["total_pages"]  # 19 total / 5 = 4 páginas
+  end
+
+  # ============================================================================
+  # TEST: Paginación - máximo per_page es 100
+  # ============================================================================
+  test "should limit per_page to maximum of 100" do
+    # ACT: Intentar solicitar 200 por página (debe limitarse a 100)
+    get api_v1_movies_url, params: { per_page: 200 }
+    
+    # ASSERT
+    json_response = JSON.parse(response.body)
+    pagination = json_response["pagination"]
+    
+    # Debe limitarse a 100
+    assert_equal 100, pagination["per_page"]  # O 100 si decides cambiar el límite
+  end
+
+  # ============================================================================
+  # TEST: Paginación - página inválida retorna página 1
+  # ============================================================================
+  test "should default to page 1 if invalid page requested" do
+    # ACT: Solicitar página 0 o negativa
+    get api_v1_movies_url, params: { page: 0 }
+    
+    # ASSERT
+    json_response = JSON.parse(response.body)
+    pagination = json_response["pagination"]
+    
+    assert_equal 1, pagination["current_page"]
+  end
+
+  # ============================================================================
+  # TEST: Paginación - página más allá del límite
+  # ============================================================================
+  test "should handle page beyond total pages" do
+    # ACT: Solicitar página 999 (no existe)
+    get api_v1_movies_url, params: { page: 999 }
+    
+    # ASSERT: Debe retornar array vacío pero sin error
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    assert_equal 0, json_response["data"].length
+    assert_equal 999, json_response["pagination"]["current_page"]
+    # assert_nil json_response["pagination"]["next_page"]
+  end
 end
