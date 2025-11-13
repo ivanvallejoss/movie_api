@@ -19,7 +19,7 @@ body {
     margin: 0 auto;
 }
 
-/* Header */
+/* ========== Header ========== */
 header {
     text-align: center;
     color: white;
@@ -37,7 +37,7 @@ header h1 {
     opacity: 0.9;
 }
 
-/* Form Section */
+/* ========== Form Section ========== */
 .form-section {
     background: white;
     border-radius: 12px;
@@ -61,6 +61,7 @@ header h1 {
 .form-group {
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .form-group label {
@@ -84,44 +85,30 @@ header h1 {
     border-color: #667eea;
 }
 
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-
-/* Estilo para VALIDACION DE ERRORES EN EL FORM */
-.form-group input.input-error{
+.form-group input.input-error {
     border-color: #dc3545;
     background-color: #fff5f5;
 }
 
-.form-group input.input-error:focus{
+.form-group input.input-error:focus {
     border-color: #dc3545;
     box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
 }
 
-.error-message{
+.error-message {
     color: #dc3545;
     font-size: 0.85rem;
     margin-top: 5px;
     display: none;
 }
 
-.error-message.show{
-    display: flex;
-}
-
-.form-actions{
+.form-actions {
     display: flex;
     gap: 10px;
     margin-top: 20px;
 }
 
-
-
-/* Buttons */
+/* ========== Buttons ========== */
 .btn {
     padding: 12px 30px;
     border: none;
@@ -130,6 +117,11 @@ header h1 {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 0.9rem;
 }
 
 .btn-primary {
@@ -158,6 +150,10 @@ header h1 {
     font-size: 0.9rem;
 }
 
+.btn-edit:hover {
+    background: #e0a800;
+}
+
 .btn-delete {
     background: #dc3545;
     color: white;
@@ -169,7 +165,7 @@ header h1 {
     background: #c82333;
 }
 
-/* Movies Section */
+/* ========== Movies Section ========== */
 .movies-section {
     background: white;
     border-radius: 12px;
@@ -197,14 +193,138 @@ header h1 {
     font-weight: 600;
 }
 
-/* Movies Grid */
+/* ========== FILTROS ========== */
+.filters-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.filters-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.filter-input,
+.filter-select {
+    padding: 10px 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: white;
+    transition: border-color 0.3s;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.filter-actions {
+    justify-content: flex-end;
+}
+
+.filter-results {
+    text-align: center;
+    color: #666;
+    font-size: 0.95rem;
+    padding-top: 10px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ========== PAGINACIÓN ========== */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #e9ecef;
+}
+
+.btn-pagination {
+    padding: 10px 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-pagination:hover:not(:disabled) {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.btn-pagination:disabled {
+    background: #e9ecef;
+    color: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.page-number {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.page-number:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.page-number.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.page-ellipsis {
+    padding: 0 8px;
+    color: #adb5bd;
+    font-weight: bold;
+}
+
+/* ========== Movies Grid ========== */
 .movies-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
 }
 
-/* Movie Card */
 .movie-card {
     background: white;
     border-radius: 12px;
@@ -225,19 +345,23 @@ header h1 {
     background: #f0f0f0;
 }
 
-.movie-content {
-    padding: 20px;
+.movie-poster-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
 
-.movie-header {
-    margin-bottom: 15px;
+.movie-content {
+    padding: 20px;
 }
 
 .movie-title {
     font-size: 1.3rem;
     font-weight: 700;
     color: #333;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .movie-meta {
@@ -282,7 +406,7 @@ header h1 {
     border-top: 1px solid #e0e0e0;
 }
 
-/* Loading & Error */
+/* ========== Loading ========== */
 .loading {
     text-align: center;
     padding: 40px;
@@ -290,16 +414,17 @@ header h1 {
     font-size: 1.1rem;
 }
 
-.error-message {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #f5c6cb;
+/* ========== Responsive ========== */
+@media (max-width: 1024px) {
+    .filters-row {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .filter-group:nth-child(1) {
+        grid-column: 1 / -1;
+    }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     header h1 {
         font-size: 2rem;
@@ -311,5 +436,24 @@ header h1 {
     
     .form-row {
         grid-template-columns: 1fr;
+    }
+    
+    .filters-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-group:nth-child(1) {
+        grid-column: 1;
+    }
+    
+    .pagination-container {
+        flex-wrap: wrap;
+    }
+    
+    .page-numbers {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
     }
 }

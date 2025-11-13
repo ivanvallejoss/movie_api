@@ -32,26 +32,36 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="year">Año *</label>
-                        <input
-                         type="number"
-                          id="year"
-                           name="year"
-                            min="1888"
+                        <input 
+                            type="number" 
+                            id="year" 
+                            name="year" 
+                            min="1930" 
+                            max="2030"
                             step="1"
-                             max="2030"
-                             placeholder="ej: 2024"
-                              required>
+                            required
+                            placeholder="ej: 2024"
+                        >
                         <span class="error-message" id="year-error" style="display: none;">
-                            El year debe estar entre 1930 y <span id="max-year"></span>
+                            El año debe estar entre 1930 y <span id="max-year"></span>
                         </span>
                     </div>
+                    
                     <div class="form-group">
                         <label for="genre">Género *</label>
                         <input type="text" id="genre" name="genre" required>
                     </div>
                     <div class="form-group">
                         <label for="rating">Rating (0-10)</label>
-                        <input type="number" id="rating" name="rating" min="0" max="10" step="0.1">
+                        <input 
+                            type="number" 
+                            id="rating" 
+                            name="rating" 
+                            min="0" 
+                            max="10" 
+                            step="0.1"
+                            placeholder="ej: 8.5"
+                        >
                     </div>
                 </div>
 
@@ -83,9 +93,87 @@
                 <span id="movie-count" class="badge">0</span>
             </div>
             
+            <!-- ========================================== -->
+            <!-- FILTROS -->
+            <!-- ========================================== -->
+            <div class="filters-container">
+                <div class="filters-row">
+                    <!-- Búsqueda -->
+                    <div class="filter-group">
+                        <label for="search-input">🔍 Buscar</label>
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="Título o director..."
+                            class="filter-input"
+                        >
+                    </div>
+                    
+                    <!-- Género -->
+                    <div class="filter-group">
+                        <label for="genre-filter">📂 Género</label>
+                        <select id="genre-filter" class="filter-select">
+                            <option value="">Todos los géneros</option>
+                            <option value="Action">Action</option>
+                            <option value="Animation">Animation</option>
+                            <option value="Crime">Crime</option>
+                            <option value="Drama">Drama</option>
+                            <option value="Mystery">Mystery</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Thriller">Thriller</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Año -->
+                    <div class="filter-group">
+                        <label for="year-filter">📅 Año</label>
+                        <input 
+                            type="number" 
+                            id="year-filter" 
+                            placeholder="Ej: 2020"
+                            class="filter-input"
+                            min="1930"
+                            max="2030"
+                        >
+                    </div>
+                    
+                    <!-- Botón Limpiar -->
+                    <div class="filter-group filter-actions">
+                        <label>&nbsp;</label>
+                        <button id="clear-filters-btn" class="btn btn-secondary btn-small">
+                            🗑️ Limpiar
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Resultados -->
+                <div class="filter-results">
+                    <span id="results-info">Mostrando todas las películas</span>
+                </div>
+            </div>
+            
+            <!-- Loading -->
             <div id="loading" class="loading">Cargando películas...</div>
-            <div id="error-message" class="error-message" style="display: none;"></div>
+            
+            <!-- Grid de películas -->
             <div id="movies-grid" class="movies-grid"></div>
+            
+            <!-- ========================================== -->
+            <!-- PAGINACIÓN -->
+            <!-- ========================================== -->
+            <div id="pagination-container" class="pagination-container" style="display: none;">
+                <button id="prev-page-btn" class="btn btn-pagination" disabled>
+                    ◀ Anterior
+                </button>
+                
+                <div id="page-numbers" class="page-numbers">
+                    <!-- Se genera dinámicamente -->
+                </div>
+                
+                <button id="next-page-btn" class="btn btn-pagination" disabled>
+                    Siguiente ▶
+                </button>
+            </div>
         </section>
     </div>
 
